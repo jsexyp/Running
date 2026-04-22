@@ -1,0 +1,1901 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Running session</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;500;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --black: #080808;
+      --dark: #0f0f0f;
+      --card: #141414;
+      --accent: #E8FF00;
+      --accent2: #FF3D00;
+      --accent3: #00E5FF;
+      --muted: #2a2a2a;
+      --text: #f0f0f0;
+      --text-dim: #888;
+      --font-display: 'Bebas Neue', sans-serif;
+      --font-body: 'Rajdhani', sans-serif;
+      --font-mono: 'Space Mono', monospace;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--black);
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 18px;
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+
+    /* ── NOISE OVERLAY ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.35;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 0 6vw 8vh;
+      position: relative;
+      overflow: hidden;
+      background: var(--black);
+    }
+
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      /* IMAGEN HERO — reemplaza la URL o deja como fondo degradado */
+      background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+      /* Para usar tu imagen: background: url('foto_ppal.jpg') center/cover no-repeat; */
+      z-index: 0;
+    }
+
+    .hero-bg::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, var(--black) 25%, transparent 70%);
+    }
+
+    .hero-grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(232,255,0,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(232,255,0,0.04) 1px, transparent 1px);
+      background-size: 60px 60px;
+      z-index: 1;
+    }
+
+    /* ── IMAGEN PLACEHOLDER HERO ── */
+    .hero-image-slot {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .hero-image-slot img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0.45;
+    }
+
+    /* Cuando no hay imagen, muestra esto: */
+    .hero-placeholder {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 12px;
+      opacity: 0.15;
+    }
+    .hero-placeholder svg { width: 80px; }
+    .hero-placeholder span { font-family: var(--font-mono); font-size: 12px; letter-spacing: 2px; color: var(--accent); }
+
+    .hero-content { position: relative; z-index: 2; }
+
+    .hero-tag {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 4px;
+      color: var(--accent);
+      text-transform: uppercase;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .hero-tag::before {
+      content: '';
+      width: 32px;
+      height: 2px;
+      background: var(--accent);
+    }
+
+    .hero-title {
+      font-family: var(--font-display);
+      font-size: clamp(56px, 10vw, 130px);
+      line-height: 0.92;
+      letter-spacing: 2px;
+      color: var(--text);
+      margin-bottom: 24px;
+    }
+
+    .hero-title span {
+      color: var(--accent);
+      display: block;
+    }
+
+    .hero-sub {
+      font-family: var(--font-body);
+      font-size: 20px;
+      font-weight: 500;
+      color: var(--text-dim);
+      max-width: 520px;
+      border-left: 3px solid var(--accent2);
+      padding-left: 18px;
+      margin-bottom: 48px;
+    }
+
+    .scroll-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      letter-spacing: 3px;
+      color: var(--accent);
+      text-transform: uppercase;
+      text-decoration: none;
+      animation: bounce 2s ease-in-out infinite;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(8px); }
+    }
+
+    /* ── SECTIONS GENERAL ── */
+    section {
+      padding: 100px 6vw;
+      max-width: 1300px;
+      margin: 0 auto;
+    }
+
+    .section-label {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 5px;
+      color: var(--accent2);
+      text-transform: uppercase;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--muted);
+    }
+
+    .section-title {
+      font-family: var(--font-display);
+      font-size: clamp(38px, 5vw, 72px);
+      letter-spacing: 1px;
+      line-height: 1;
+      margin-bottom: 32px;
+    }
+
+    .highlight { color: var(--accent); }
+    .highlight2 { color: var(--accent2); }
+    .highlight3 { color: var(--accent3); }
+
+    /* ── INTRO PHILOSOPHICA ── */
+    .intro-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: center;
+      margin-top: 20px;
+    }
+
+    @media (max-width: 768px) {
+      .intro-grid { grid-template-columns: 1fr; }
+    }
+
+    .intro-text p {
+      font-size: 19px;
+      color: #ccc;
+      margin-bottom: 20px;
+      font-weight: 500;
+    }
+
+    /* ╔══ EDITABLE: texto de introducción ══╗ */
+    /* Edita el contenido entre las etiquetas <p> dentro de #intro-text-content */
+
+    .quote-block {
+      border: 1px solid var(--muted);
+      border-left: 4px solid var(--accent);
+      padding: 32px;
+      background: var(--card);
+      position: relative;
+    }
+    .quote-block::before {
+      content: '"';
+      font-family: var(--font-display);
+      font-size: 120px;
+      color: var(--accent);
+      opacity: 0.12;
+      position: absolute;
+      top: -20px;
+      left: 20px;
+      line-height: 1;
+    }
+    .quote-block p {
+      font-family: var(--font-display);
+      font-size: 32px;
+      line-height: 1.2;
+      letter-spacing: 1px;
+    }
+    .quote-block cite {
+      display: block;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 3px;
+      color: var(--accent);
+      margin-top: 16px;
+    }
+
+    /* ── MEDIA SLOT (imágenes/gifs genéricos) ── */
+    .media-slot {
+      width: 100%;
+      aspect-ratio: 16/9;
+      background: var(--card);
+      border: 1px dashed var(--muted);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      color: var(--text-dim);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-align: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .media-slot img,
+    .media-slot video {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .media-slot.portrait {
+      aspect-ratio: 3/4;
+    }
+
+    .media-slot.square {
+      aspect-ratio: 1;
+    }
+
+    .media-slot .slot-label {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .media-slot .slot-icon {
+      font-size: 32px;
+      opacity: 0.3;
+    }
+
+    /* ── TRAINING CARDS ── */
+    .trainings-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 80px;
+    }
+
+    .training-card {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 48px;
+      align-items: start;
+      position: relative;
+    }
+
+    .training-card::before {
+      content: '';
+      position: absolute;
+      left: -6vw;
+      right: -6vw;
+      top: -40px;
+      bottom: -40px;
+      background: var(--card);
+      z-index: -1;
+      border-radius: 2px;
+    }
+
+    .training-card:nth-child(even) {
+      direction: rtl;
+    }
+    .training-card:nth-child(even) > * {
+      direction: ltr;
+    }
+
+    @media (max-width: 768px) {
+      .training-card { grid-template-columns: 1fr; direction: ltr !important; }
+      .training-card > * { direction: ltr !important; }
+    }
+
+    .training-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .training-number {
+      font-family: var(--font-display);
+      font-size: 120px;
+      line-height: 1;
+      color: var(--accent);
+      opacity: 0.08;
+      position: absolute;
+      top: -20px;
+      right: 0;
+      pointer-events: none;
+    }
+
+    .training-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .training-badge {
+      background: var(--accent);
+      color: var(--black);
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      padding: 4px 12px;
+      text-transform: uppercase;
+    }
+
+    .training-title {
+      font-family: var(--font-display);
+      font-size: 42px;
+      letter-spacing: 1px;
+    }
+
+    /* Stats chips */
+    .stats-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .stat-chip {
+      background: var(--muted);
+      border: 1px solid #333;
+      padding: 8px 16px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .stat-chip .stat-label {
+      color: var(--accent);
+      font-size: 9px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .stat-chip .stat-value {
+      color: var(--text);
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    /* ╔══ EDITABLE: reemplaza "—" con tus datos de cada entrenamiento ══╗ */
+
+    .training-narrative {
+      font-size: 17px;
+      color: #bbb;
+      line-height: 1.8;
+      font-weight: 500;
+    }
+
+    .training-narrative p { margin-bottom: 16px; }
+
+    .training-images {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .training-images .media-slot:first-child {
+      aspect-ratio: 4/3;
+    }
+    .training-images .img-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .training-images .img-row .media-slot {
+      aspect-ratio: 1;
+    }
+
+    /* ── RPG STATS SECTION ── */
+    .rpg-section {
+      background: var(--dark);
+      padding: 100px 6vw;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .rpg-section::before {
+      content: 'LEVEL UP';
+      position: absolute;
+      font-family: var(--font-display);
+      font-size: 200px;
+      color: var(--accent);
+      opacity: 0.03;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      white-space: nowrap;
+      pointer-events: none;
+    }
+
+    .rpg-inner {
+      max-width: 1300px;
+      margin: 0 auto;
+    }
+
+    .rpg-header {
+      text-align: center;
+      margin-bottom: 64px;
+    }
+
+    .rpg-character {
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      gap: 48px;
+      align-items: start;
+      margin-bottom: 64px;
+    }
+
+    @media (max-width: 768px) {
+      .rpg-character { grid-template-columns: 1fr; }
+    }
+
+    .char-card {
+      background: var(--card);
+      border: 1px solid #2a2a2a;
+      padding: 32px 24px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .char-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+    }
+
+    .char-avatar {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      border: 3px solid var(--accent);
+      background: var(--muted);
+      margin: 0 auto 20px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .char-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .char-avatar-placeholder {
+      font-size: 40px;
+      opacity: 0.4;
+    }
+
+    .char-name {
+      font-family: var(--font-display);
+      font-size: 28px;
+      text-align: center;
+      letter-spacing: 2px;
+      margin-bottom: 4px;
+    }
+
+    .char-class {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 3px;
+      color: var(--accent);
+      text-align: center;
+      text-transform: uppercase;
+      margin-bottom: 24px;
+    }
+
+    .char-xp-bar {
+      margin-top: 20px;
+    }
+
+    .xp-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 2px;
+      color: var(--text-dim);
+      margin-bottom: 6px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .xp-track {
+      height: 8px;
+      background: var(--muted);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .xp-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      animation: xpGrow 2s ease-out forwards;
+      transform-origin: left;
+    }
+
+    @keyframes xpGrow {
+      from { width: 0%; }
+    }
+
+    /* Stats table RPG */
+    .stats-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .stat-row-rpg {
+      display: grid;
+      grid-template-columns: 180px 1fr 180px;
+      align-items: center;
+      gap: 16px;
+    }
+
+    @media (max-width: 600px) {
+      .stat-row-rpg { grid-template-columns: 1fr; gap: 8px; }
+    }
+
+    .stat-name-rpg {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 2px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+    }
+
+    .stat-bar-wrapper {
+      position: relative;
+      height: 32px;
+      background: var(--muted);
+      overflow: hidden;
+    }
+
+    .stat-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent3), var(--accent));
+      position: relative;
+      transition: width 1.5s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex;
+      align-items: center;
+    }
+
+    .stat-bar-fill::after {
+      content: '';
+      position: absolute;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: white;
+      opacity: 0.6;
+    }
+
+    .stat-bar-fill.e1 { background: linear-gradient(90deg, #444, #666); }
+    .stat-bar-fill.e3 { background: linear-gradient(90deg, var(--accent3), var(--accent)); }
+
+    .stat-bar-label {
+      position: absolute;
+      right: 12px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: rgba(0,0,0,0.6);
+      font-weight: 700;
+    }
+
+    .stat-delta {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--accent);
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .stat-delta.positive::before { content: '▲ '; }
+    .stat-delta.mega::before { content: '▲▲ '; color: var(--accent2); }
+
+    .stat-compare-labels {
+      display: grid;
+      grid-template-columns: 180px 1fr 180px;
+      gap: 16px;
+      margin-bottom: 8px;
+    }
+    .stat-compare-labels span {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+    }
+    .stat-compare-labels .l1 { color: #666; }
+    .stat-compare-labels .l3 { color: var(--accent); text-align: right; }
+    .stat-compare-labels .mid { text-align: center; color: var(--text-dim); }
+
+    /* Dual bar (E1 vs E3) */
+    .dual-bar {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .dual-bar-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      height: 14px;
+    }
+    .dual-bar-row .bar {
+      height: 100%;
+      transition: width 1.5s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .dual-bar-row.row-e1 .bar { background: #444; }
+    .dual-bar-row.row-e3 .bar { background: var(--accent); }
+    .dual-bar-row .mini-label {
+      font-family: var(--font-mono);
+      font-size: 8px;
+      letter-spacing: 1px;
+      color: var(--text-dim);
+      width: 20px;
+      flex-shrink: 0;
+    }
+
+    .achievement-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 48px;
+    }
+
+    .badge {
+      background: var(--card);
+      border: 1px solid var(--muted);
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 1px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .badge::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, var(--accent) 0%, transparent 4px);
+    }
+
+    .badge-icon { font-size: 20px; }
+    .badge-text { display: flex; flex-direction: column; gap: 2px; }
+    .badge-name { color: var(--text); font-size: 12px; }
+    .badge-desc { color: var(--text-dim); font-size: 9px; }
+
+    /* ── LIMITS SECTION ── */
+    .limits-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin-top: 48px;
+    }
+
+    @media (max-width: 768px) {
+      .limits-grid { grid-template-columns: 1fr; }
+    }
+
+    .limit-card {
+      background: var(--card);
+      border: 1px solid var(--muted);
+      padding: 36px 28px;
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.3s ease;
+    }
+
+    .limit-card:hover { border-color: var(--accent); }
+
+    .limit-card::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 3px;
+    }
+
+    .limit-card.physical::after { background: var(--accent2); }
+    .limit-card.mental::after { background: var(--accent3); }
+    .limit-card.spiritual::after { background: var(--accent); }
+
+    .limit-icon {
+      font-size: 36px;
+      margin-bottom: 16px;
+    }
+
+    .limit-type {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    .limit-card.physical .limit-type { color: var(--accent2); }
+    .limit-card.mental .limit-type { color: var(--accent3); }
+    .limit-card.spiritual .limit-type { color: var(--accent); }
+
+    .limit-title {
+      font-family: var(--font-display);
+      font-size: 30px;
+      letter-spacing: 1px;
+      margin-bottom: 16px;
+    }
+
+    .limit-text {
+      font-size: 15px;
+      color: #aaa;
+      line-height: 1.75;
+      font-weight: 500;
+    }
+
+    /* ── TORRALBA / INTELLIGENCE SECTION ── */
+    .intelligence-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 32px;
+      margin-top: 48px;
+    }
+
+    @media (max-width: 768px) {
+      .intelligence-grid { grid-template-columns: 1fr; }
+    }
+
+    .intel-card {
+      background: var(--card);
+      border: 1px solid var(--muted);
+      padding: 32px;
+      display: flex;
+      gap: 20px;
+      transition: transform 0.3s ease, border-color 0.3s ease;
+    }
+
+    .intel-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--accent);
+    }
+
+    .intel-num {
+      font-family: var(--font-display);
+      font-size: 64px;
+      color: var(--accent);
+      opacity: 0.2;
+      line-height: 1;
+      flex-shrink: 0;
+      width: 60px;
+    }
+
+    .intel-body { flex: 1; }
+
+    .intel-concept {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 3px;
+      color: var(--accent);
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .intel-title {
+      font-family: var(--font-display);
+      font-size: 26px;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+    }
+
+    .intel-def {
+      font-size: 14px;
+      color: var(--text-dim);
+      margin-bottom: 12px;
+      font-style: italic;
+      padding-left: 12px;
+      border-left: 2px solid var(--muted);
+    }
+
+    .intel-exp {
+      font-size: 15px;
+      color: #bbb;
+      line-height: 1.7;
+      font-weight: 500;
+    }
+
+    /* ╔══ EDITABLE: contenido de inteligencia espiritual ══╗ */
+
+    /* ── GIF SECTION ── */
+    .gif-banner {
+      width: 100%;
+      aspect-ratio: 21/9;
+      background: var(--card);
+      border: 1px dashed var(--muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+      margin: 0;
+    }
+
+    .gif-banner img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .gif-banner .slot-label {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 2px;
+      color: var(--text-dim);
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* ── FINAL REFLECTION ── */
+    .finale {
+      background: var(--dark);
+      padding: 120px 6vw;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .finale-inner {
+      max-width: 1300px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+    }
+
+    @media (max-width: 768px) {
+      .finale-inner { grid-template-columns: 1fr; }
+    }
+
+    .finale-text .section-title { margin-bottom: 24px; }
+
+    .finale-text p {
+      font-size: 18px;
+      color: #bbb;
+      margin-bottom: 16px;
+      font-weight: 500;
+      line-height: 1.8;
+    }
+
+    .finale-media { display: flex; flex-direction: column; gap: 20px; }
+
+    .manifesto {
+      background: var(--accent);
+      color: var(--black);
+      padding: 40px;
+      position: relative;
+    }
+
+    .manifesto p {
+      font-family: var(--font-display);
+      font-size: 32px;
+      line-height: 1.2;
+      letter-spacing: 1px;
+      color: var(--black) !important;
+      margin: 0 !important;
+    }
+
+    .manifesto::after {
+      content: '— Reflexión Final';
+      display: block;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 3px;
+      margin-top: 16px;
+      opacity: 0.6;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--black);
+      border-top: 1px solid var(--muted);
+      padding: 40px 6vw;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 2px;
+      color: var(--text-dim);
+    }
+
+    footer .logo {
+      font-family: var(--font-display);
+      font-size: 22px;
+      color: var(--accent);
+      letter-spacing: 3px;
+    }
+
+    /* ── RUNNING LINE DECO ── */
+    .divider-line {
+      width: 100%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--muted), transparent);
+      margin: 0;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: var(--black); }
+    ::-webkit-scrollbar-thumb { background: var(--accent); }
+
+    /* ── ANIMATIONS on scroll (basic) ── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: none;
+    }
+
+    /* ── PULSE ICON ── */
+    .pulse {
+      display: inline-block;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.15); }
+    }
+
+    /* torralba section */
+    .torralba-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: var(--muted);
+      margin-top: 48px;
+      border: 1px solid var(--muted);
+    }
+    @media (max-width: 768px) {
+      .torralba-grid { grid-template-columns: 1fr; }
+    }
+
+    .torralba-item {
+      background: var(--card);
+      padding: 36px 28px;
+      transition: background 0.3s;
+    }
+    .torralba-item:hover { background: #1a1a1a; }
+
+    .torralba-concept {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      letter-spacing: 4px;
+      color: var(--accent2);
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .torralba-title {
+      font-family: var(--font-display);
+      font-size: 28px;
+      letter-spacing: 1px;
+      margin-bottom: 16px;
+    }
+
+    .torralba-body {
+      font-size: 15px;
+      color: #aaa;
+      line-height: 1.75;
+      font-weight: 500;
+    }
+
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════
+     HERO
+════════════════════════════════════════════ -->
+<div class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+
+  <!-- ╔══════════════════════════════════════╗
+       ║  IMAGEN HERO                         ║
+       ║  Reemplaza el div.hero-placeholder   ║
+       ║  por: <img src="tu_foto.jpg" ...>    ║
+       ╚══════════════════════════════════════╝ -->
+  <div class="hero-image-slot">
+    <div class="hero-placeholder">
+      <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="40" cy="20" r="8" fill="#E8FF00" opacity="0.5"/>
+        <path d="M24 60 L36 35 L44 45 L52 28 L62 60" stroke="#E8FF00" stroke-width="2" opacity="0.5" fill="none" stroke-linecap="round"/>
+      </svg>
+    </div>
+        <img src="foto_ppal.jpeg" /> 
+  </div>
+
+  <div class="hero-content">
+    <div class="hero-tag">Inteligencia espiritual & deporte</div>
+    <h1 class="hero-title">
+      No se corre<br/>
+      <span>solo con</span>
+      las piernas
+    </h1>
+    <p class="hero-sub">
+      <!-- ╔══ EDITABLE: subtítulo / lema personal ══╗ -->
+      Se corre con el corazón, la mente y el alma.
+    </p>
+    <a href="#intro" class="scroll-cta">
+      ▼ &nbsp; Comenzar el recorrido
+    </a>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     INTRO / EXPECTATIVAS
+════════════════════════════════════════════ -->
+<section id="intro">
+  <div class="section-label">Punto de partida</div>
+  <h2 class="section-title">Antes de<br/><span class="highlight">dar el primer paso</span></h2>
+
+  <div class="intro-grid reveal">
+    <div class="intro-text" id="intro-text-content">
+      <!-- ╔══════════════════════════════════════════════════╗
+           ║  EDITABLE: Responde aquí a:                      ║
+           ║  • ¿Qué expectativas tenías?                     ║
+           ║  • ¿Pensabas que correr tenía dimensión         ║
+           ║    espiritual?                                   ║
+           ║  • ¿Cómo comprendías el deporte antes?          ║
+           ╚══════════════════════════════════════════════════╝ -->
+      <p>
+        Antes de comenzar esta experiencia, mi relación con el running era puramente funcional. Correr era quemar calorías, mejorar el cardio, completar kilómetros.
+      </p>
+      <p>
+        Nunca había asociado el deporte con algo tan profundo como la espiritualidad. La palabra me parecía reservada para la meditación o la religión, no para zapatillas y asfalto.
+      </p>
+      <p>
+	Mis expectativas estaban marcadas por una resistencia interna: correr me pesaba porque mi mente siempre encontraba una razón para detenerme. Creía que no era para mí. Pero al ver a mi mamá cruzar la meta de un medio maratón, algo cambió; entendí que el límite no estaba en el cuerpo, sino en la forma en que me hablaba a mí mismo. 
+      </p>
+      <p>
+	Entonces dejé de esperar que fuera fácil y empecé a buscar que fuera transformador, no solo al correr, sino al aprender a no rendirme ante mi propia mente.        
+	</p>
+    </div>
+
+    <div class="quote-block reveal">
+      <!-- ╔══ EDITABLE: cita o frase que resonó contigo ══╗ -->
+      <p>"El deporte es un laboratorio del alma donde el ser humano se descubre a sí mismo."</p>
+      <cite>— Francesc Torralba</cite>
+    </div>
+  </div>
+</section>
+
+<div class="divider-line"></div>
+
+<!-- ══════════════════════════════════════════
+     GIF BANNER 1
+════════════════════════════════════════════ -->
+<div class="gif-banner">
+  <!-- ╔══════════════════════════════════════╗
+       ║  GIF o imagen panorámica             ║
+       ║  Reemplaza con:                      ║
+       ║  <img src="tu_gif.gif" alt="...">   ║
+       ╚══════════════════════════════════════╝ -->
+  <div class="slot-label">
+    <video autoplay muted loop playsinline>
+  <source src="corriendo.mp4" type="video/mp4">
+</video>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     ENTRENAMIENTO 1
+════════════════════════════════════════════ -->
+<section id="training1" style="padding-top:120px;">
+  <div class="section-label">Sesión 01</div>
+  <div class="trainings-wrapper">
+
+    <div class="training-card reveal">
+      <div class="training-number">01</div>
+
+      <div class="training-meta">
+        <div class="training-header">
+          <div class="training-badge">Entrenamiento 1</div>
+        </div>
+        <h3 class="training-title">El primer <span class="highlight">choque</span></h3>
+
+        <div class="stats-row">
+          <!-- ╔══ EDITABLE: datos técnicos del entrenamiento 1 ══╗ -->
+          <div class="stat-chip">
+            <span class="stat-label">Fecha</span>
+            <span class="stat-value">09/04</span>
+          </div>
+          <div class="stat-chip">
+            <span class="stat-label">Distancia</span>
+            <span class="stat-value">1 km</span>
+          </div>
+          <div class="stat-chip">
+            <span class="stat-label">Tiempo</span>
+            <span class="stat-value">07:38</span>
+          </div>
+          <div class="stat-chip">
+            <span class="stat-label">Ritmo prom.</span>
+            <span class="stat-value">5'11'</span>
+          </div>
+        </div>
+
+        <div class="training-narrative">
+          <!-- ╔══════════════════════════════════════════════════╗
+               ║  EDITABLE: Narrativa del Entrenamiento 1         ║
+               ║  Describe: sensaciones, pensamientos,            ║
+               ║  emociones, entorno, manejo del esfuerzo         ║
+               ╚══════════════════════════════════════════════════╝ -->
+          <p>
+            Volví a correr después de mucho tiempo y al inicio sentí que la pista no me pertenecía, como si estuviera fuera de lugar. Tan solo los primeros 100 metros fueron pesados: la respiración desordenada, las piernas ardiendo, el cuerpo reclamando pausa. Quería detenerme, pero algo en mí insistía en seguir. 
+	          </p>
+          <p>
+Ver a otros corredores avanzar me empujaba a no rendirme, a sostener el paso aunque fuera incómodo. Al lograr llegar al primer kilómetro, mi cuerpo me pedía descanso inmediato, pero una mezcla de orgullo y ego me mantuvo en movimiento, como si detenerme fuera también ceder ante esa voz interna que tantas veces me había frenado.
+          </p>
+                  </div>
+      </div>
+
+      <div class="training-images">
+        <!-- ╔══════════════════════════════════════════════════╗
+             ║  IMÁGENES ENTRENAMIENTO 1                        ║
+             ║  Captura de app + foto del recorrido             ║
+             ║  Para insertar: <img src="foto1.jpg">            ║
+             ╚══════════════════════════════════════════════════╝ -->
+        <div class="media-slot">
+          <div class="slot-label">
+          </div>
+          <img src="carrera1.png" alt="Captura app entrenamiento 1">
+        </div>
+        <div class="img-row">
+          <div class="media-slot">
+            <div class="slot-label">
+            </div>
+            <img src="foto_dia1.jpeg" alt="Recorrido">
+          </div>
+          <div class="media-slot">
+            <div class="slot-label">
+            </div>
+            <video autoplay muted loop playsinline>
+  <source src="etto1.mp4" type="video/mp4">
+</video>
+          </div>
+        </div>
+      </div>
+    </div>
+
+<!-- ══════════════════════════════════════════
+     ENTRENAMIENTO 2
+════════════════════════════════════════════ -->
+    <div class="training-card reveal">
+      <div class="training-number">02</div>
+
+      <div class="training-meta">
+        <div class="training-header">
+          <div class="training-badge" style="background:var(--accent3); color:var(--black);">Entrenamiento 2</div>
+        </div>
+        <h3 class="training-title">La <span class="highlight3">adaptación</span></h3>
+
+        <div class="stats-row">
+          <!-- ╔══ EDITABLE: datos técnicos del entrenamiento 2 ══╗ -->
+          <div class="stat-chip">
+            <span class="stat-label">Fecha</span>
+            <span class="stat-value">11/04</span>
+          </div>
+          <div class="stat-chip">
+            <span class="stat-label">Distancia</span>
+            <span class="stat-value">3.08 km</span>
+          </div>
+          <div class="stat-chip">
+            <span class="stat-label">Tiempo</span>
+            <span class="stat-value">16:31</span>
+          </div>
+          <div class="stat-chip">
+            <span class="stat-label">Ritmo prom.</span>
+            <span class="stat-value">8'27''</span>
+          </div>
+        </div>
+
+        <div class="training-narrative">
+          <!-- ╔══════════════════════════════════════════════════╗
+               ║  EDITABLE: Narrativa del Entrenamiento 2         ║
+               ║  Cambios respecto al 1, mayor consciencia,       ║
+               ║  gestión del ritmo, relación con otros           ║
+               ╚══════════════════════════════════════════════════╝ -->
+          <p>
+En el segundo entrenamiento empecé a notar un cambio más interno que físico. Correr sin música me enfrentó directamente con mi mente, que insistía en detenerme a cada momento, como si el verdadero esfuerzo fuera sostenerme en ese diálogo constante. Al decidir poner música, no fue solo una distracción, sino una forma de acompañarme y no dejarme solo frente a esa voz que me limitaba. Poco a poco, la respiración encontró su ritmo y el dolor dejó de ser el centro de mi atención, aunque seguía ahí.
+          </p>
+          <p>
+Aun estando enfermo del estómago, llegué a los 3 km, y eso resignificó la meta: ya no era distancia, era voluntad. Al acercarme al final, viendo cómo el contador avanzaba lentamente, entendí que ese tramo se corría con algo más profundo que el cuerpo. Mi diálogo interno cambió; dejó de sabotearme y empezó a sostenerme. 
+          </p>
+          <p>
+Me vi reflejado en esa resistencia, en esa incomodidad que también aparece en la vida cuando todo se vuelve cuesta arriba. Y aun así, permanecí. Fue ahí donde entendí que no se trata de no querer rendirse, sino de aprender a quedarse, incluso cuando todo dentro de ti te pide que te detengas.
+          </p>
+        </div>
+      </div>
+
+      <div class="training-images">
+        <div class="media-slot">
+          <div class="slot-label">
+          </div>
+          <img src="carrera2.png" alt="Captura app entrenamiento 2">
+        </div>
+        <div class="img-row">
+          <div class="media-slot">
+            <div class="slot-label"></div>
+            <img src="foto_dia2.jpeg" alt="Recorrido carrera 2">
+          </div>
+          <div class="media-slot">
+            <div class="slot-label"></div>
+            <video autoplay muted loop playsinline>
+  <source src="corriendo.mp4" type="video/mp4">
+</video>
+          </div>
+        </div>
+      </div>
+    </div>
+
+<!-- ══════════════════════════════════════════
+     ENTRENAMIENTO 3
+════════════════════════════════════════════ -->
+    <div class="training-card reveal">
+      <div class="training-number">03</div>
+
+      <div class="training-meta">
+        <div class="training-header">
+          <div class="training-badge" style="background:var(--accent2);">Entrenamiento 3</div>
+        </div>
+        <h3 class="training-title">La <span class="highlight2">ruptura</span></h3>
+
+        <div class="stats-row">
+          <!-- ╔══ EDITABLE: datos técnicos del entrenamiento 3 ══╗ -->
+          <div class="stat-chip">
+            <span class="stat-label">Fecha</span>
+            <span class="stat-value">16/04</span>
+          </div>
+          <div class="stat-chip">
+            <span class="stat-label">Distancia</span>
+            <span class="stat-value">2.5 km</span>
+          </div>
+          <div class="stat-chip">
+            <span class="stat-label">Tiempo</span>
+            <span class="stat-value">12:57</span>
+          </div>
+          <div class="stat-chip">
+            <span class="stat-label">Ritmo prom.</span>
+            <span class="stat-value">7'38''</span>
+          </div>
+        </div>
+
+        <div class="training-narrative">
+          <!-- ╔══════════════════════════════════════════════════╗
+               ║  EDITABLE: Narrativa del Entrenamiento 3         ║
+               ║  Momento de ruptura del límite, silencio         ║
+               ║  interior, conexión con algo más grande          ║
+               ╚══════════════════════════════════════════════════╝ -->
+          <p>
+En el último entrenamiento todo se sintió distinto. Volver a la pista de la universidad me enfrentó con esa monotonía que alguna vez me alejó de correr, y aunque la distancia fue menor, la intensidad hizo que cada tramo pesara más. Hubo momentos difíciles, especialmente cuando el cuerpo ya venía cargado desde el calentamiento, pero sabía que podía sostenerlo. No se trataba de superar una marca, sino de recuperar esa sensación de libertad que alguna vez había perdido.
+          </p>
+          <p>
+En medio del esfuerzo, aparecieron instantes de silencio interior, donde dejé de pelear con el cansancio y simplemente me movía. Ya no era solo el cuerpo corriendo, era también la conciencia acompañando cada paso. Pensé en mi mamá, en todo lo que representa para mí, y en lo que significa ahora correr a su lado hacia una meta común. Eso le dio un sentido más profundo: ya no corría solo.
+          </p>
+          <p>
+Al final, me sentí parte de algo más grande. No solo de los corredores en la pista, sino de una historia compartida, de una familia que no se rinde y que encuentra en el esfuerzo una forma de avanzar junta. El amanecer en la universidad y correr con mi novia lo volvieron una experiencia diferente: ya no era solo entrenamiento, era presencia, conexión y una forma de estar vivo desde otro lugar.
+          </p>
+        </div>
+      </div>
+
+      <div class="training-images">
+        <div class="media-slot">
+          <div class="slot-label">
+          </div>
+          <img src="carrera3.png" alt="Captura app entrenamiento 3">
+        </div>
+        <div class="img-row">
+          <div class="media-slot">
+            <div class="slot-label"></div>
+            <img src="foto_dia3.jpeg" alt="Recorrido carrera 3">
+          </div>
+          <div class="media-slot">
+            <div class="slot-label"></div>
+            <video autoplay muted loop playsinline>
+  <source src="etto3.mp4" type="video/mp4">
+</video>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<div class="divider-line"></div>
+
+<!-- ══════════════════════════════════════════
+     RPG STATS — EVOLUCIÓN
+════════════════════════════════════════════ -->
+<div class="rpg-section" id="evolution">
+  <div class="rpg-inner">
+
+    <div class="rpg-header reveal">
+      <div class="section-label" style="justify-content:center">Evolución del corredor</div>
+      <h2 class="section-title" style="text-align:center">
+        <span class="highlight">STATS</span> — Level Up
+      </h2>
+      <p style="text-align:center; color:var(--text-dim); font-family:var(--font-mono); font-size:12px; letter-spacing:3px; margin-top:8px;">
+        ENTRENAMIENTO 1 → ENTRENAMIENTO 3
+      </p>
+    </div>
+
+    <div class="rpg-character reveal">
+
+      <div class="char-card">
+        <div class="char-avatar">
+          <!-- ╔══ EDITABLE: foto de perfil / avatar ══╗ -->
+          <div class="char-avatar-placeholder"></div>
+          <img src="foto_avatar.jpeg" alt="Avatar">
+        </div>
+        <!-- ╔══ EDITABLE: tu nombre ══╗ -->
+        <div class="char-name">JUAN PABLO</div>
+        <div class="char-class">Runner · Principiante</div>
+
+        <div class="char-xp-bar">
+          <div class="xp-label">
+            <span>DISTANCIA ACUMULADA</span>
+            <!-- ╔══ EDITABLE: distancia total recorrida ══╗ -->
+            <span>6.58 km totales</span>
+          </div>
+          <div class="xp-track">
+            <!-- ╔══ EDITABLE: porcentaje de barra XP (0-100) ══╗
+                 Ajusta el "width" según tu progreso percibido    -->
+            <div class="xp-fill" style="width:72%"></div>
+          </div>
+        </div>
+
+        <div class="char-xp-bar" style="margin-top:14px">
+          <div class="xp-label">
+            <span>INTELIGENCIA ESPIRITUAL</span>
+            <span>MÁS CONSCIENTE</span>
+          </div>
+          <div class="xp-track">
+            <div class="xp-fill" style="width:60%; animation-delay:0.3s; background: linear-gradient(90deg, var(--accent3), var(--accent));"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="stats-grid">
+
+        <div class="stat-compare-labels">
+          <span class="l1">E1</span>
+          <span class="mid">ATRIBUTO</span>
+          <span class="l3" style="text-align:right">E3 ▲</span>
+        </div>
+
+        <!-- ╔══════════════════════════════════════════════════╗
+             ║  EDITABLE: Ajusta los width de .e1 y .e3        ║
+             ║  según tu percepción de la evolución             ║
+             ║  (valores entre 10% y 100%)                      ║
+             ║                                                  ║
+             ║  Y edita el texto de .stat-delta                 ║
+             ╚══════════════════════════════════════════════════╝ -->
+
+        <!-- RESISTENCIA FÍSICA -->
+        <div class="stat-row-rpg">
+          <div class="stat-name-rpg">⚡ Resistencia Física</div>
+          <div class="stat-bar-wrapper">
+            <div class="dual-bar">
+              <div class="dual-bar-row row-e1">
+                <span class="mini-label">E1</span>
+                <div class="bar" style="width:40%"></div>
+              </div>
+              <div class="dual-bar-row row-e3">
+                <span class="mini-label">E3</span>
+                <div class="bar" style="width:75%"></div>
+              </div>
+            </div>
+          </div>
+          <div class="stat-delta positive">MAYOR RESISTENCIA</div>
+        </div>
+
+        <!-- GESTIÓN DEL ESFUERZO -->
+        <div class="stat-row-rpg">
+          <div class="stat-name-rpg">🎯 Gestión del Esfuerzo</div>
+          <div class="stat-bar-wrapper">
+            <div class="dual-bar">
+              <div class="dual-bar-row row-e1">
+                <span class="mini-label">E1</span>
+                <div class="bar" style="width:30%"></div>
+              </div>
+              <div class="dual-bar-row row-e3">
+                <span class="mini-label">E3</span>
+                <div class="bar" style="width:70%"></div>
+              </div>
+            </div>
+          </div>
+          <div class="stat-delta positive">MAYOR DISFRUTE</div>
+        </div>
+
+        <!-- DISCIPLINA -->
+        <div class="stat-row-rpg">
+          <div class="stat-name-rpg">🔒 Disciplina</div>
+          <div class="stat-bar-wrapper">
+            <div class="dual-bar">
+              <div class="dual-bar-row row-e1">
+                <span class="mini-label">E1</span>
+                <div class="bar" style="width:50%"></div>
+              </div>
+              <div class="dual-bar-row row-e3">
+                <span class="mini-label">E3</span>
+                <div class="bar" style="width:80%"></div>
+              </div>
+            </div>
+          </div>
+          <div class="stat-delta positive">MAYOR MOTIVACIÓN</div>
+        </div>
+
+        <!-- AUTOCONOCIMIENTO -->
+        <div class="stat-row-rpg">
+          <div class="stat-name-rpg">🧠 Autoconocimiento</div>
+          <div class="stat-bar-wrapper">
+            <div class="dual-bar">
+              <div class="dual-bar-row row-e1">
+                <span class="mini-label">E1</span>
+                <div class="bar" style="width:20%"></div>
+              </div>
+              <div class="dual-bar-row row-e3">
+                <span class="mini-label">E3</span>
+                <div class="bar" style="width:85%"></div>
+              </div>
+            </div>
+          </div>
+          <div class="stat-delta mega">SÉ QUE PUEDO</div>
+        </div>
+
+        <!-- ACTITUD INTERIOR -->
+        <div class="stat-row-rpg">
+          <div class="stat-name-rpg">🌟 Actitud Interior</div>
+          <div class="stat-bar-wrapper">
+            <div class="dual-bar">
+              <div class="dual-bar-row row-e1">
+                <span class="mini-label">E1</span>
+                <div class="bar" style="width:35%"></div>
+              </div>
+              <div class="dual-bar-row row-e3">
+                <span class="mini-label">E3</span>
+                <div class="bar" style="width:90%"></div>
+              </div>
+            </div>
+          </div>
+          <div class="stat-delta mega">LO VOLVÍ A DISFRUTAR</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Logros / Achievements -->
+    <div class="achievement-badges reveal">
+      <!-- ╔══ EDITABLE: puedes cambiar los nombres de los logros ══╗ -->
+      <div class="badge">
+        <span class="badge-icon">🏅</span>
+        <div class="badge-text">
+          <span class="badge-name">PRIMER KILÓMETRO</span>
+          <span class="badge-desc">Volví a correr</span>
+        </div>
+      </div>
+      <div class="badge">
+        <span class="badge-icon">🔥</span>
+        <div class="badge-text">
+          <span class="badge-name">ZONA DE QUEMA</span>
+          <span class="badge-desc">No se rinde cuando se pone difícil</span>
+        </div>
+      </div>
+      <div class="badge">
+        <span class="badge-icon">🧘</span>
+        <div class="badge-text">
+          <span class="badge-name">SILENCIO INTERIOR</span>
+          <span class="badge-desc">Ponerle pausa a la voz interior</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     LÍMITES
+════════════════════════════════════════════ -->
+<section id="limits">
+  <div class="section-label">Análisis de límites</div>
+  <h2 class="section-title">Donde el <span class="highlight">cuerpo</span> termina,<br/>el alma <span class="highlight2">comienza</span></h2>
+
+  <div class="limits-grid reveal">
+
+    <div class="limit-card physical">
+      <div class="limit-icon">⚡</div>
+      <div class="limit-type">Límite físico</div>
+      <div class="limit-title">El cuerpo como maestro</div>
+      <p class="limit-text">
+        <!-- ╔══════════════════════════════════════════════════╗
+             ║  EDITABLE: describe tus momentos de fatiga,      ║
+             ║  cómo reaccionaste, qué te enseñó tu cuerpo      ║
+             ╚══════════════════════════════════════════════════╝ -->
+El límite físico apareció en los momentos de mayor fatiga: cuando las piernas ardían, la respiración se rompía y el cuerpo parecía pedir detenerse. Ahí entendí que el cuerpo no es un enemigo, sino un maestro que marca el ritmo y revela hasta dónde es posible llegar. En lugar de resistirme, aprendí a escucharlo, a sostener el esfuerzo sin forzarlo de más. Fue entonces cuando descubrí que muchas veces el límite no es el final, sino un umbral que, si se cruza con conciencia, expande lo que creía posible.
+      </p>
+    </div>
+
+    <div class="limit-card mental">
+      <div class="limit-icon">🧠</div>
+      <div class="limit-type">Límite mental</div>
+      <div class="limit-title">La mente, ¿aliada o enemiga?</div>
+      <p class="limit-text">
+        <!-- ╔══════════════════════════════════════════════════╗
+             ║  EDITABLE: pensamientos de abandono,             ║
+             ║  comparación, inseguridad, diálogo interno       ║
+             ╚══════════════════════════════════════════════════╝ -->
+La mente muchas veces fue enemiga, sembrando dudas y empujándome a parar antes de tiempo. Pero al hacerme consciente de esa voz, dejé de creerle ciegamente y empecé a responderle. Así, poco a poco, se transformó en aliada: no porque dejara de cuestionarme, sino porque aprendí a no obedecerle siempre. Gestionar la frustración fue sostenerme en medio de ese ruido y elegir avanzar, incluso cuando mi mente insistía en lo contrario.
+      </p>
+    </div>
+
+    <div class="limit-card spiritual">
+      <div class="limit-icon">✨</div>
+      <div class="limit-type">Límite espiritual</div>
+      <div class="limit-title">El instante de plenitud</div>
+      <p class="limit-text">
+        <!-- ╔══════════════════════════════════════════════════╗
+             ║  EDITABLE: momentos de silencio, conexión o      ║
+             ║  trascendencia durante la carrera                ║
+             ╚══════════════════════════════════════════════════╝ -->
+En medio del esfuerzo aparecieron momentos breves pero profundos de plenitud, donde todo lo externo dejó de importar y solo existía el movimiento. Ya no había prisa ni preocupación, solo una sensación de presencia total. En esos instantes, correr dejó de ser un esfuerzo y se volvió una experiencia de conexión, conmigo mismo y con algo más grande. Sentí gratitud, no por llegar a una meta, sino por el simple hecho de estar vivo, de poder moverme y sostenerme en ese momento.
+      </p>
+    </div>
+
+  </div>
+</section>
+
+<div class="divider-line"></div>
+
+<!-- ══════════════════════════════════════════
+     GIF BANNER 2
+════════════════════════════════════════════ -->
+<!-- ══════════════════════════════════════════
+     INTELIGENCIA ESPIRITUAL (TORRALBA)
+════════════════════════════════════════════ -->
+<section id="intelligence">
+  <div class="section-label">Francesc Torralba</div>
+  <h2 class="section-title">Inteligencia<br/><span class="highlight">Espiritual</span> desarrollada</h2>
+  <p style="color:var(--text-dim); max-width:640px; font-size:17px; margin-bottom:8px;">
+    Las capacidades que despertaron en el asfalto. Cada kilómetro fue también un kilómetro hacia adentro.
+  </p>
+
+  <div class="intelligence-grid reveal">
+
+    <!-- ╔══════════════════════════════════════════════════════════╗
+         ║  EDITABLE: Para cada capacidad:                         ║
+         ║  1. Mantén o cambia el nombre de .intel-title           ║
+         ║  2. Edita .intel-def (definición conceptual breve)      ║
+         ║  3. Edita .intel-exp (tu ejemplo concreto vivido)       ║
+         ║  Puedes duplicar o eliminar bloques según las           ║
+         ║  capacidades que hayas seleccionado                     ║
+         ╚══════════════════════════════════════════════════════════╝ -->
+
+    <div class="intel-card">
+      <div class="intel-num">01</div>
+      <div class="intel-body">
+        <div class="intel-concept">Capacidad 1</div>
+        <div class="intel-title">Autoconciencia</div>
+        <p class="intel-def">La capacidad de observarse a uno mismo desde afuera, como testigo del propio proceso interior.</p>
+        <p class="intel-exp">
+Me di cuenta de mis pensamientos justo cuando quería parar antes de que el cuerpo lo pidiera. Ahí observé cómo mi mente se adelantaba al cansancio.
+        </p>
+      </div>
+    </div>
+
+    <div class="intel-card">
+      <div class="intel-num">02</div>
+      <div class="intel-body">
+        <div class="intel-concept">Capacidad 2</div>
+        <div class="intel-title">Autotrascendencia</div>
+        <p class="intel-def">La habilidad de ir más allá de los propios límites y conectar con algo mayor que uno mismo.</p>
+        <p class="intel-exp">
+Dejé de correr solo para mí en algunos momentos y sentí que formaba parte de algo más grande: mi mamá, otros corredores, una historia compartida.
+        </p>
+      </div>
+    </div>
+
+    <div class="intel-card">
+      <div class="intel-num">03</div>
+      <div class="intel-body">
+        <div class="intel-concept">Capacidad 3</div>
+        <div class="intel-title">Gestión del sufrimiento</div>
+        <p class="intel-def">Transformar el dolor o el cansancio en fuente de sentido y crecimiento, no solo en obstáculo.</p>
+        <p class="intel-exp">
+El cansancio dejó de ser solo dolor y se volvió señal de esfuerzo. Me mostró que podía resistir más de lo que creía.
+        </p>
+      </div>
+    </div>
+
+    <div class="intel-card">
+      <div class="intel-num">04</div>
+      <div class="intel-body">
+        <div class="intel-concept">Capacidad 4</div>
+        <div class="intel-title">Liberación del ego</div>
+        <p class="intel-def">Dejar de estar centrado en el rendimiento y el juicio propio para simplemente ser y estar.</p>
+        <p class="intel-exp">
+Solté el ritmo y la comparación. Solo corrí, sin pensar en rendimiento ni en los demás.
+        </p>
+      </div>
+    </div>
+
+    <div class="intel-card">
+      <div class="intel-num">05</div>
+      <div class="intel-body">
+        <div class="intel-concept">Capacidad 5</div>
+        <!-- ╔══ EDITABLE: pon tu quinta capacidad ══╗ -->
+        <div class="intel-title">Capacidad de asombro</div>
+        <p class="intel-def">La habilidad de maravillarse ante lo ordinario: el propio cuerpo, el entorno, el movimiento.</p>
+        <p class="intel-exp">
+Me sorprendió mi respiración encontrando orden y el amanecer mientras corría. Vi belleza en el esfuerzo.
+        </p>
+      </div>
+    </div>
+
+    <div class="intel-card">
+      <div class="intel-num">06</div>
+      <div class="intel-body">
+        <div class="intel-concept">Capacidad 6</div>
+        <!-- ╔══ EDITABLE: pon tu sexta capacidad ══╗ -->
+        <div class="intel-title">Interrogación por el sentido</div>
+        <p class="intel-def">La pregunta viva por el "¿para qué?" que aparece cuando el cuerpo ya no da más.</p>
+        <p class="intel-exp">
+En lo más difícil apareció el “¿por qué sigo?”. La respuesta fue simple: porque aún no es el momento de parar.
+        </p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<div class="divider-line"></div>
+
+<!-- ══════════════════════════════════════════
+     TORRALBA — ARTICULACIÓN TEÓRICA
+════════════════════════════════════════════ -->
+<section id="theory" style="background:var(--dark); max-width:100%; padding:100px 6vw;">
+  <div style="max-width:1300px; margin:0 auto;">
+    <div class="section-label">Marco teórico</div>
+    <h2 class="section-title">El deporte como<br/><span class="highlight">experiencia integral</span></h2>
+
+    <div class="torralba-grid reveal">
+
+      <div class="torralba-item">
+        <div class="torralba-concept">Concepto I</div>
+        <div class="torralba-title">Experiencia integradora</div>
+        <p class="torralba-body">
+          <!-- ╔══ EDITABLE: articula tu vivencia con este concepto de Torralba ══╗ -->
+Correr activó cuerpo, mente y algo más profundo al mismo tiempo. En el segundo entrenamiento, mientras el cuerpo dolía y la respiración se desordenaba, la mente quería parar, pero emocionalmente sentía la necesidad de seguir. Todo ocurrió a la vez, sin separación clara.
+        </p>
+      </div>
+
+      <div class="torralba-item">
+        <div class="torralba-concept">Concepto II</div>
+        <div class="torralba-title">Situación límite</div>
+        <p class="torralba-body">
+          <!-- ╔══ EDITABLE ══╗ -->
+En los momentos en que el cansancio se volvía casi insoportable, apareció la pregunta de por qué sigo haciendo esto. No fue solo físico, fue existencial: cuestioné mi capacidad de sostener procesos difíciles en general, no solo corriendo.
+        </p>
+      </div>
+
+      <div class="torralba-item">
+        <div class="torralba-concept">Concepto III</div>
+        <div class="torralba-title">El cansancio revelador</div>
+        <p class="torralba-body">
+          <!-- ╔══ EDITABLE ══╗ -->
+El cansancio me mostró que muchas veces me detengo antes de llegar a mi verdadero límite. Reveló una tendencia a evitar el malestar, incluso cuando todavía podía continuar.
+        </p>
+      </div>
+
+      <div class="torralba-item">
+        <div class="torralba-concept">Concepto IV</div>
+        <div class="torralba-title">Autoconocimiento en movimiento</div>
+        <p class="torralba-body">
+          <!-- ╔══ EDITABLE ══╗ -->
+Correr me mostró que soy más persistente de lo que creo, pero también más mentalmente frágil de lo que acepto. Descubrí que mi mayor lucha no es física, sino interna.
+        </p>
+      </div>
+
+      <div class="torralba-item">
+        <div class="torralba-concept">Concepto V</div>
+        <div class="torralba-title">El ego y la marca</div>
+        <p class="torralba-body">
+          <!-- ╔══ EDITABLE ══╗ -->
+Hubo un momento en que dejar de mirar el ritmo y la distancia hizo que el resultado perdiera importancia. Entendí que lo valioso era simplemente sostenerme en el proceso, no la marca final.
+        </p>
+      </div>
+
+      <div class="torralba-item">
+        <div class="torralba-concept">Concepto VI</div>
+        <div class="torralba-title">Deporte y resiliencia vital</div>
+        <p class="torralba-body">
+          <!-- ╔══ EDITABLE ══╗ -->
+Lo aprendido se refleja en la vida académica y personal, especialmente cuando algo se vuelve difícil y aparece la tentación de abandonar. Ahora reconozco mejor ese límite y puedo quedarme un poco más, incluso cuando incomoda.
+        </p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     REFLEXIÓN FINAL
+════════════════════════════════════════════ -->
+<div class="finale" id="final">
+  <div class="finale-inner">
+
+    <div class="finale-text reveal">
+      <div class="section-label">Reflexión final</div>
+      <h2 class="section-title">Más que<br/><span class="highlight">kilómetros</span></h2>
+
+      <!-- ╔══════════════════════════════════════════════════╗
+           ║  EDITABLE: reflexión personal final              ║
+           ║  Responde: ¿qué significa ahora correr para ti?  ║
+           ║  ¿cómo aplicarás esto a tu vida cotidiana?       ║
+           ╚══════════════════════════════════════════════════╝ -->
+      <p>
+Correr dejó de ser una actividad con medida y se convirtió en una forma de exposición. Ya no es solo el recorrido de una distancia, sino el encuentro repetido con lo que soy cuando el cuerpo deja de obedecer con facilidad. En ese espacio sin adornos, sin interrupciones, aparece una versión de uno mismo que no siempre se ve en la vida cotidiana: más honesta, más vulnerable, menos narrativa.
+      </p>
+      <p>
+El esfuerzo antes lo entendía como algo que debía ser vencido o administrado; ahora lo he vuelto a reconocer como algo que no siempre se supera, ni siempre se controla. A veces solo se sostiene. Y en ese sostener aparece una forma distinta de disciplina: no la que fuerza, sino la que permanece.
+      </p>
+      <p>
+El deporte, después de esta experiencia, volvió a dejar ese lugar secundario. Se volvió un territorio de observación interior. No porque me entregue respuestas definitivas, sino porque me obliga a permanecer en las preguntas mientras el cuerpo avanza. Así, correr no me ordena ni me transforma de manera espectacular; me despoja. Y en ese despojo, algo se vuelve más claro: la manera en que uno atraviesa el esfuerzo, para mi, dice más que el resultado del esfuerzo mismo.
+      </p>
+    </div>
+
+    <div class="finale-media reveal">
+      <!-- ╔══ EDITABLE: imagen final / foto favorita tuya corriendo ══╗ -->
+      <div class="media-slot portrait">
+        <div class="slot-label">
+        </div>
+        <img src="foto_etto2.jpeg" alt="Running">
+      </div>
+
+      <div class="manifesto">
+        <!-- ╔══ EDITABLE: frase final que resume tu experiencia ══╗ -->
+        <p>No se corre solo con las piernas. Se corre con todo lo que uno es.</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     FOOTER
+════════════════════════════════════════════ -->
+<footer>
+  <div class="logo">RUNNER ✦</div>
+  <!-- ╔══ EDITABLE: nombre, materia, año ══╗ -->
+  <div>Juan Pablo Barro Arredondo · Inteligencia Espiritual y Deporte · 2025</div>
+</footer>
+
+<!-- ══════════════════════════════════════════
+     SCRIPTS
+════════════════════════════════════════════ -->
+<script>
+  // Reveal on scroll
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => entry.target.classList.add('visible'), i * 80);
+      }
+    });
+  }, { threshold: 0.12 });
+  reveals.forEach(el => observer.observe(el));
+
+  // Animate stat bars on scroll
+  const bars = document.querySelectorAll('.dual-bar-row .bar');
+  const barObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const bar = entry.target;
+        const targetW = bar.style.width;
+        bar.style.width = '0%';
+        requestAnimationFrame(() => {
+          setTimeout(() => { bar.style.transition = 'width 1.2s cubic-bezier(0.16,1,0.3,1)'; bar.style.width = targetW; }, 100);
+        });
+        barObserver.unobserve(bar);
+      }
+    });
+  }, { threshold: 0.3 });
+  bars.forEach(b => barObserver.observe(b));
+</script>
+
+</body>
+</html>
